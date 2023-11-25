@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using StudyingProcedures.Data;
 using StudyingProcedures.Models;
+using StudyingProcedures.Models.ViewModels;
 
 namespace StudyingProcedures.Controllers
 {
@@ -29,6 +30,23 @@ namespace StudyingProcedures.Controllers
             return _context.cities.FromSqlRaw("EXEC GetById {0}", id).AsEnumerable().FirstOrDefault();
             
         }
+
+        [HttpPost("")]
+        public async Task<IActionResult> CreateCity([FromBody] Cities city) 
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Database.ExecuteSqlRaw("EXEC CreateCity {0},{1}", city.CityName, city.Population);
+                await _context.SaveChangesAsync();
+                return Ok(new CityViewModel(city.CityName, city.Population));
+            }
+            else
+            {
+                return BadRequest();
+            }
+            
+        }
+
         
 
 
