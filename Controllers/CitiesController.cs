@@ -7,11 +7,11 @@ namespace StudyingProcedures.Controllers
 {
     [ApiController]
     [Route("")]
-    public class HomeController : ControllerBase
+    public class CitiesController : ControllerBase
     {
         private readonly CitiesContext _context;
 
-        public HomeController(CitiesContext context)
+        public CitiesController(CitiesContext context)
         {
             _context = context;
         }
@@ -22,6 +22,14 @@ namespace StudyingProcedures.Controllers
 
             return await _context.cities.FromSqlRaw("EXEC GetAll").ToListAsync();
         }
+        [HttpGet("unico/{id}")]
+        public Cities getOne( int id)
+        {
+
+            return _context.cities.FromSqlRaw("EXEC GetById {0}", id).AsEnumerable().FirstOrDefault();
+            
+        }
+        
 
 
     }
