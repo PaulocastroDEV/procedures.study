@@ -85,7 +85,19 @@ namespace StudyingProcedures.Controllers
                 return NotFound();
             }
         }
-        
+        [HttpDelete("cidades/{id}")]
+        public async Task<IActionResult> DeleteCity([FromRoute] int id)
+        {
+            var city = _context.cities.FromSqlRaw("EXEC GetById {0}", id).AsEnumerable().FirstOrDefault();
+            if (city != null)
+            {
+                _context.Database.ExecuteSqlRaw("Exec DeleteCity {0}", id);
+                await _context.SaveChangesAsync();
+                return StatusCode(204);
+            }
+            return NotFound();
+        }
+
 
 
 
