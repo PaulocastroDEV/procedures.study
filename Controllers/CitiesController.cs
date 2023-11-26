@@ -17,21 +17,26 @@ namespace StudyingProcedures.Controllers
             _context = context;
         }
 
-        [HttpGet("todas")]
+        [HttpGet("cidades")]
         public async Task<List<Cities>> getAll()
         {
 
             return await _context.cities.FromSqlRaw("EXEC GetAll").ToListAsync();
         }
-        [HttpGet("unico/{id}")]
-        public Cities getOne( int id)
+        [HttpGet("cidades/{id}")]
+        public IActionResult getOne( int id)
         {
 
-            return _context.cities.FromSqlRaw("EXEC GetById {0}", id).AsEnumerable().FirstOrDefault();
+            var city =  _context.cities.FromSqlRaw("EXEC GetById {0}", id).AsEnumerable().FirstOrDefault();
+            if(city!= null)
+            {
+                return Ok(new CityViewModel(city.CityName, city.Population));
+            }
+            return NotFound();
             
         }
 
-        [HttpPost("")]
+        [HttpPost("cidades")]
         public async Task<IActionResult> CreateCity([FromBody] Cities city) 
         {
             if (ModelState.IsValid)
@@ -47,15 +52,14 @@ namespace StudyingProcedures.Controllers
             
         }
 
-        [HttpPost("/{id:int}")]
-        public async Task<IActionResult> UpdateCityName([FromRoute]int id, [FromBody] EditNameViewModel cityName)
+        [HttpPut("cidades/nome/{id:int}")]
+        public async Task<IActionResult> UpdateCity([FromRoute]int id, [FromBody] EditNameViewModel cityName)
         {
-            var city = getOne(id);
-            if(city != null)
+            var city = _context.cities.FromSqlRaw("EXEC GetById {0}", id).AsEnumerable().FirstOrDefault();
+            if (city != null)
             {
                 _context.Database.ExecuteSqlRaw("EXEC UpdateCityName {0},{1}", id, cityName.CityName);
                 await _context.SaveChangesAsync();
-
                 return Ok(new CityViewModel(cityName.CityName, city.Population));
             }
             else
@@ -63,6 +67,26 @@ namespace StudyingProcedures.Controllers
                 return NotFound();
             }             
         }
+
+
+        [HttpPut("cidades/populacao/{id:int}")]
+        public async Task<IActionResult> UpdateCity([FromRoute] int id, [FromBody] EditPopulationViewModel cityPopulation)
+        {
+            var city = _context.cities.FromSqlRaw("EXEC GetById {0}", id).AsEnumerable().FirstOrDefault();
+            if (city != null)
+            {
+                _context.Database.ExecuteSqlRaw("EXEC UpdatePopulation {0},{1}", id, cityPopulation.Population);
+                await _context.SaveChangesAsync();
+
+                return Ok(new CityViewModel(city.CityName, cityPopulation.Population));
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        
+
 
 
 
