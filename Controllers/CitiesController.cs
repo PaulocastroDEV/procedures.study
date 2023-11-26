@@ -47,7 +47,24 @@ namespace StudyingProcedures.Controllers
             
         }
 
-        
+        [HttpPost("/{id:int}")]
+        public async Task<IActionResult> UpdateCityName([FromRoute]int id, [FromBody] EditNameViewModel cityName)
+        {
+            var city = getOne(id);
+            if(city != null)
+            {
+                _context.Database.ExecuteSqlRaw("EXEC UpdateCityName {0},{1}", id, cityName.CityName);
+                await _context.SaveChangesAsync();
+
+                return Ok(new CityViewModel(cityName.CityName, city.Population));
+            }
+            else
+            {
+                return NotFound();
+            }             
+        }
+
+
 
 
     }
